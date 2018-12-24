@@ -131,5 +131,7 @@ void main(int argc,char *argv[]){
   print(hashString,nibbles);
   printf("\n");
   breakSha(hash,hashString,nibbles);
+  }else{
+    printf("usage is :\n 1-just name of program to run with default values\n2- <program name> <string> <size of string>\n");
   }
 }
