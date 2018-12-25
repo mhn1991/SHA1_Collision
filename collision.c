@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<locale.h>
+#include<time.h>
 
 void H(unsigned char * data, unsigned char *hash,int nibbles){
   SHA1(data,nibbles,hash);
@@ -19,10 +20,14 @@ void copy(unsigned char *a,unsigned char *b){
   strcpy(b,a);
 }
 
+// sprintf is about 8 times slower than this 
 void ShaToString(unsigned char *hash,unsigned char *hashString)
-{ 
+{
+  const char * hex = "0123456789abcdef";
   for(int i=0;i<SHA_DIGEST_LENGTH;i++){
-    sprintf((unsigned char*)&(hashString[i*2]), "%02x", hash[i]);
+    //sprintf((unsigned char*)&(hashString[i*2]), "%02x", hash[i]);
+    hashString [2*i]   = hex[(hash[i] & 0xF0) >> 4];
+    hashString [2*i+1] = hex[hash[i] & 0x0F];
   }
 }
 
@@ -103,6 +108,7 @@ void breakSha(unsigned char *hash,unsigned char *hashString,int nibbles){
 void main(int argc,char *argv[]){
   //int nibbles;
   if(argc == 1){
+    clock_t start = clock();
     printf("program will run to find collision until 10 nibles\n");
     int nibbles = 10;
     unsigned char * hash = (unsigned char *) calloc(SHA_DIGEST_LENGTH,sizeof(unsigned char *));
@@ -116,8 +122,11 @@ void main(int argc,char *argv[]){
   print(hashString,nibbles);
   printf("\n");
   breakSha(hash,hashString,nibbles);
+  clock_t finish = clock();
+  printf("time take to find collision: %f\n",(float)(finish - start) / CLOCKS_PER_SEC);
   }
-  if(argc == 3){
+  else if(argc == 3){
+    clock_t start = clock();
     int nibbles = atoi(argv[2]);
     char *str = argv[1];
     printf("you initilized algorithm with string:%s and number of nibbles you want is: %d\n",str,nibbles);
@@ -131,6 +140,8 @@ void main(int argc,char *argv[]){
   print(hashString,nibbles);
   printf("\n");
   breakSha(hash,hashString,nibbles);
+  clock_t finish = clock();
+  printf("time take to find collision: %f\n",(float)(finish - start) / CLOCKS_PER_SEC);
   }else{
     printf("usage is :\n 1-just name of program to run with default values\n2- <program name> <string> <size of string>\n");
   }
